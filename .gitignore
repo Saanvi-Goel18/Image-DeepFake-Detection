@@ -1,0 +1,39 @@
+# Virtual Environments
+.venv/
+gpu_venv/
+venv310/
+venv/
+env/
+
+# Data and Datasets
+AIGuard_Deepfake_Dataset.rar
+extracted_data/
+processed_data/
+splits/
+phase2_splits/
+
+# Checkpoints and Models
+checkpoints/
+phase1_checkpoints/
+phase2_checkpoints/
+*.pth
+*.pt
+*.h5
+
+# Results and Outputs
+results/
+phase1_results/
+phase2_results/
+
+# Installers and Binaries
+python311_installer.exe
+*.exe
+
+# Python Caches
+__pycache__/
+*.pyc
+
+# IDEs and OS files
+.vscode/
+.idea/
+.DS_Store
