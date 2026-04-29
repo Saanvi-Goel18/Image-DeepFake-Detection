@@ -37,3 +37,10 @@ __pycache__/
 .vscode/
 .idea/
 .DS_Store
+
+# Phase 3 and 4 Additions
+phase3_checkpoints/
+phase4_checkpoints/
+phase3_splits/
+scratch/
+cross_val_output.log

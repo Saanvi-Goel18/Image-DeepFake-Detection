@@ -43,7 +43,7 @@ TEST_RATIO = 0.10
 PHYSICAL_BATCH_SIZE = 4   # Reduced for CPU
 ACCUM_STEPS = 8           # Increased to maintain effective batch size
 EFFECTIVE_BATCH_SIZE = PHYSICAL_BATCH_SIZE * ACCUM_STEPS  # 32
-NUM_EPOCHS = 5            # Reduced for faster CPU training
+NUM_EPOCHS = 15           # Increased for extended comparative benchmarking
 LEARNING_RATE = 1e-4
 WEIGHT_DECAY = 1e-4
 
