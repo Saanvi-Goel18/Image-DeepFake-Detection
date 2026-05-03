@@ -151,16 +151,43 @@ def main(fold_idx=0):
     swa_start = 25  # Start SWA at Epoch 26
     swa_scheduler = SWALR(optimizer, swa_lr=LR_MIN)
 
-    ckpt_path = os.path.join(PHASE4_CHECKPOINT_DIR, f"sfcanet_v4_1_cv{fold_idx}_best.pth")
-    log_path  = os.path.join(PHASE4_RESULTS_DIR, f"sfcanet_v4_1_cv{fold_idx}_log.csv")
-    
-    with open(log_path, 'w', newline='') as f:
-        csv.writer(f).writerow(['epoch', 'clf_loss', 'aigu_auc', 'ffpp_auc', 'combined_auc', 'lr', 'time_sec', 'hnm_active'])
+    ckpt_path      = os.path.join(PHASE4_CHECKPOINT_DIR, f"sfcanet_v4_1_cv{fold_idx}_best.pth")
+    ckpt_full_path = os.path.join(PHASE4_CHECKPOINT_DIR, f"sfcanet_v4_1_cv{fold_idx}_full.pth")
+    log_path       = os.path.join(PHASE4_RESULTS_DIR, f"sfcanet_v4_1_cv{fold_idx}_log.csv")
 
+    # -- Resume detection --------------------------------------------------
+    start_epoch   = 1
     best_combined = 0.0
-    loss_by_idx = {}
+    loss_by_idx   = {}
 
-    for epoch in range(1, NUM_EPOCHS + 1):
+    if os.path.exists(ckpt_full_path):
+        print(f"  [RESUME] Loading full checkpoint from {ckpt_full_path}")
+        ckpt_data = torch.load(ckpt_full_path, map_location=DEVICE, weights_only=False)
+        model.load_state_dict(ckpt_data['model_state_dict'])
+        optimizer.load_state_dict(ckpt_data['optimizer_state_dict'])
+        scheduler.load_state_dict(ckpt_data['scheduler_state_dict'])
+        scaler.load_state_dict(ckpt_data['scaler_state_dict'])
+        start_epoch   = ckpt_data['epoch'] + 1
+        best_combined = ckpt_data.get('best_combined_auc', 0.0)
+        print(f"  [RESUME] Resuming from epoch {start_epoch} | Best AUC so far: {best_combined:.4f}")
+        log_mode = 'a'   # append to existing log
+    elif os.path.exists(ckpt_path):
+        # Partial resume: only model weights saved (no optimizer state)
+        print(f"  [RESUME] Loading best model weights from {ckpt_path}")
+        ckpt_data = torch.load(ckpt_path, map_location=DEVICE, weights_only=False)
+        model.load_state_dict(ckpt_data['model_state_dict'])
+        start_epoch   = ckpt_data['epoch'] + 1
+        best_combined = ckpt_data.get('best_combined_auc', 0.0)
+        print(f"  [RESUME] Model weights loaded (ep {ckpt_data['epoch']}). Optimizer reset.")
+        log_mode = 'a'
+    else:
+        log_mode = 'w'
+
+    if log_mode == 'w':
+        with open(log_path, 'w', newline='') as f:
+            csv.writer(f).writerow(['epoch', 'clf_loss', 'aigu_auc', 'ffpp_auc', 'combined_auc', 'lr', 'time_sec', 'hnm_active'])
+
+    for epoch in range(start_epoch, NUM_EPOCHS + 1):
         t0 = time.time()
         hnm_active = (epoch >= HARD_NEG_MINING_EPOCH)
 
@@ -193,6 +220,16 @@ def main(fold_idx=0):
             
         lr = optimizer.param_groups[0]['lr']
         dt = time.time() - t0
+
+        # Always save full checkpoint for resuming
+        torch.save({
+            'epoch':              epoch,
+            'model_state_dict':   model.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
+            'scheduler_state_dict': scheduler.state_dict(),
+            'scaler_state_dict':  scaler.state_dict(),
+            'best_combined_auc':  best_combined,
+        }, ckpt_full_path)
 
         if combined_auc > best_combined:
             best_combined = combined_auc
