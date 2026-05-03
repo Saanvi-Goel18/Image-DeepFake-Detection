@@ -2,14 +2,6 @@
 
 A deepfake detection model that fuses spatial RGB features with multi-scale DCT frequency analysis via Frequency-Guided Attention (FGA) for robust cross-domain generalization.
 
-## Results
-
-| Dataset | AUC |
-|---------|-----|
-| AIGuard (in-domain) | 0.994 |
-| FaceForensics++ (cross-domain) | 0.889 |
-| Combined | **0.938** |
-
 ## Key Files
 
 | File | Description |
