@@ -1,2 +1,0 @@
-epoch,clf_loss,dom_loss,grl_lambda,aigu_auc,ffpp_auc,combined_auc,lr,time_sec
-1,0.351906,0.672919,0.0000,0.881478,0.550126,0.696365,0.00004980,1040.0

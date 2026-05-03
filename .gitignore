@@ -42,5 +42,7 @@ __pycache__/
 phase3_checkpoints/
 phase4_checkpoints/
 phase3_splits/
+phase3_results/
+phase4_results/
 scratch/
 cross_val_output.log
